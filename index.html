@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <nav class="fixed-top navbar navbar-dark bg-dark text-light">
+    <nav class="navbar navbar-dark bg-dark text-light">
         <span class="navbar-brand mb-0 h1">Weather Dashboard</span>
         <form class="form-inline my-2 my-lg-0">
             <input id="citySearch" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -19,16 +19,33 @@
         </form>
     </nav>
 
+    <!-- Append content here -->
     <div id="responseContainer" class="container">
+        <div class="bg-secondary col-md-4" id="history">
+            <ul id="historyList" class="list-group"></ul>
+        </div>
+        <div class="row">
+            <div class="col-md-8" id="cityResponse">
+                <h1 id="city"></h1>
+                <ul id="current"></ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="d-none col-md-8" id="5day">
+                <h1>5 Day Forcast</h1>
+            </div>
+        </div>
 
     </div>
 
 
-
-
-
-    <footer class="fixed-bottom bg-dark text-light"><a href="http://theodrebutts.com"></a><h6>&copy;THEODOREBUTTS.COM</h6></footer>
+    <footer class="fixed-bottom bg-dark text-light"><a href="http://theodrebutts.com"></a>
+        <h6 class="m-1">&copy;THEODOREBUTTS.COM</h6>
+    </footer>
+    
+    
     <script src="./assets/js/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
     </script>
