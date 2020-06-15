@@ -7,22 +7,61 @@ var todayWind = document.querySelector('#currentWind');
 var todayHum = document.querySelector('#currentHum');
 var todayUV = document.querySelector('#currentUV');
 var list = JSON.parse(localStorage.getItem('weatherStorage')) || [];
+var resultBtn = document.querySelector("#search-buttons");
 
 // fetch current day data from api.openweathermap.org/data/2.5/weather?q={city name},{state code}&appid=1a43c0eec6dcda3a7a81a3791424d2bd
 var getCurrentDay = function (name) {
     var apiURL = "https://api.openweathermap.org/data/2.5/weather?q=" + name + "&appid=1a43c0eec6dcda3a7a81a3791424d2bd&units=imperial";
     fetch(apiURL)
-        .then(function (response) {
+    .then(function (response) {
+        if (response.ok) {
+            storeItems(name);
+            if (list.length < 4) {
+                createButton(name);
+            }
             response.json().then(function (data) {
                 displayCurrent(data);
                 uvIndex(data);
-                // console.log(data);
-            })
-
-        });
+            });
+        } 
+    })
+    
 }
 
-// fetch 5 day data from api.openweathermap.org/data/2.5/forecast?q={city name},{state code},{country code}&appid={your api key}
+// display search history
+var createButton = function (name) {
+    var btn = document.createElement("BUTTON");
+    btn.className = "d-flex btn m-1 card-body prev-search";
+    btn.innerHTML = name;
+    document.getElementById("search-buttons").append(btn);
+}
+
+var storeItems = function (searchRes) {
+    const locInput = searchRes
+
+    let weatherStorage;
+
+    if (localStorage.getItem('weatherStorage') === null) {
+        weatherStorage = [];
+    } else {
+        weatherStorage = JSON.parse(localStorage.getItem("weatherStorage"));
+    }
+    weatherStorage.push(locInput);
+
+    localStorage.setItem('weatherStorage', JSON.stringify(weatherStorage))
+}
+
+function activateLocal(list) {
+    for (i = 0; i < list.length; i++) {
+        var listCheck = i
+        if (listCheck < 4) {
+            createButton(list[i])
+        } else {
+            createButton("Clear Results")
+            break
+        }
+    }
+}
 
 // display searched city current conditions
 var formSubmitHandler = function (event) {
@@ -152,7 +191,17 @@ var tempArrayContent = function (temp, humid, icon) {
 
     }
 }
-// display search history
 
+$("#search-buttons").on('click', ".prev-search", function () {
+    var userPastInput = $(this)[0].outerText
+    if (userPastInput === "Clear Results") {
+        localStorage.clear()
+        window.location.reload()
+    } else {
+        displayCurrent(userPastInput);
+        formSubmitFiveDay(userPastInput);
+    }
+});
 
+activateLocal(list)
 userFormEl.addEventListener("submit", formSubmitHandler);
