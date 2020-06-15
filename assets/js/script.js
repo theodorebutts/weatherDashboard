@@ -44,7 +44,7 @@ var storeItems = function (searchRes) {
     if (localStorage.getItem('weatherStorage') === null) {
         weatherStorage = [];
     } else {
-        weatherStorage = JSON.parse(localStorage.getItem("weatherStorage"));
+        weatherStorage = JSON.parse(localStorage.getItem('weatherStorage'));
     }
     weatherStorage.push(locInput);
 
