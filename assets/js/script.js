@@ -6,6 +6,7 @@ var todayTemp = document.querySelector('#currentTemp');
 var todayWind = document.querySelector('#currentWind');
 var todayHum = document.querySelector('#currentHum');
 var todayUV = document.querySelector('#currentUV');
+var list = JSON.parse(localStorage.getItem('weatherStorage')) || [];
 
 // fetch current day data from api.openweathermap.org/data/2.5/weather?q={city name},{state code}&appid=1a43c0eec6dcda3a7a81a3791424d2bd
 var getCurrentDay = function (name) {
@@ -15,7 +16,7 @@ var getCurrentDay = function (name) {
             response.json().then(function (data) {
                 displayCurrent(data);
                 uvIndex(data);
-                console.log(data);
+                // console.log(data);
             })
 
         });
@@ -28,9 +29,11 @@ var formSubmitHandler = function (event) {
     event.preventDefault();
 
     var cityName = nameInputEl.value
-    // .trim()
-    // .toUpperCase();
+    .trim()
+    .toUpperCase();
 
+    formSubmitFiveDay(cityName);
+    
     if (cityName) {
         getCurrentDay(cityName);
 
@@ -41,20 +44,20 @@ var formSubmitHandler = function (event) {
 }
 
 var displayCurrent = function (data) {
-    // const m = moment();
+    const m = moment();
     var currentCity = data.name;
     var currentTemp = data.main.temp;
     var currentHum = data.main.humidity;
     var currentWind = data.wind.speed;
     var currentIcon = data.weather[0].main
     var iconEl = $("#icon-info");
-    // var nowDate = m.format('L');
+    var nowDate = m.format('L');
 
     // clear current content
     searchedCityEl.textContent = "";
 
     // display info
-    searchedCityEl.textContent = currentCity;
+    searchedCityEl.textContent = currentCity + ' (' + nowDate + ')';
     todayTemp.textContent = currentTemp + " \xB0 F";
     todayHum.textContent = currentHum + "%";
     todayWind.textContent = currentWind + " MPH";
@@ -66,13 +69,14 @@ var displayCurrent = function (data) {
     } else if (currentIcon === "Rain") {
         iconEl.addClass("oi oi-rain")
     }
+    fiveDayDate(m);
 }
 
 // Current UV
 var uvIndex = function (data) {
     lonItem = data.coord.lon
     latItem = data.coord.lat
-    var apiUrl = "https://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + latItem + "&lon=" + lonItem + "&APPID=35d3ddb8208b03fbaf1197e2a757e86e&units=imperial"
+    var apiUrl = "https://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + latItem + "&lon=" + lonItem + "&appid=1a43c0eec6dcda3a7a81a3791424d2bd&units=imperial"
     fetch(apiUrl)
         .then(function (response) {
             response.json().then(function (data) {
@@ -90,6 +94,64 @@ var uvIndex = function (data) {
 }
 
 // display 5 day forcast
+var fiveDayDate = function (m) {
+    for (var i = 2; i < 7; i++) {
+        var dateStartEl = $("#date-" + i);
+        var dateIncrement = m.add(1, 'days');
+        dateStartEl[0].textContent = dateIncrement.format('L')
+    }
+};
+
+var formSubmitFiveDay = function (name) {
+    var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + name + "&appid=1a43c0eec6dcda3a7a81a3791424d2bd&units=imperial"
+    fetch(apiUrl)
+        .then(function (response) {
+            response.json().then(function (data) {
+                fiveDayTemp(data);
+            })
+        })
+       
+};
+
+var fiveDayTemp = function (data) {
+    var tempArray = [];
+    var humidArray = [];
+    var iconArray = [];
+    for (i = 0; i < data.list.length; i++) {
+        var timeVerify = (data.list[i].dt_txt);
+        var timeSplit = timeVerify.split(" ");
+        var finalTest = (timeSplit[1]);
+        var tempIncrement = data.list[i].main.temp;
+        var humidIncrement = data.list[i].main.humidity;
+        var iconIncrement = data.list[i].weather[0].main;
+        if (finalTest === "00:00:00") {
+            tempArray.push(tempIncrement)
+            humidArray.push(humidIncrement)
+            iconArray.push(iconIncrement)
+        }
+    }
+    tempArrayContent(tempArray, humidArray, iconArray)
+     console.log(tempArray)
+}
+
+
+var tempArrayContent = function (temp, humid, icon) {
+    for (i = 0; i < temp.length; i++) {
+        var tempDayOverall = $("#temp-" + (i + 2));
+        var humidDayOverall = $("#humid-" + (i + 2));
+        var iconDayOverall = $("#icon-" + (i + 2));
+        tempDayOverall[0].textContent = "Temp: " + temp[i] + " \xB0 F";
+        humidDayOverall[0].textContent = "Humidity: " + humid[i] + "%";
+        if (icon[i] === "Clear") {
+            iconDayOverall.addClass("oi oi-cloud")
+        } else if (icon[i] === "Clouds") {
+            iconDayOverall.addClass("oi oi-sun")
+        } else if (icon[i] === "Rain") {
+            iconDayOverall.addClass("oi oi-rain")
+        }
+
+    }
+}
 // display search history
 
 
